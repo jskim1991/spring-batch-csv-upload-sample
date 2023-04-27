@@ -1,4 +1,4 @@
-package io.jay.batchprocessing.entity;
+package io.jay.batchprocessing.common.entity;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -27,6 +27,8 @@ public class Customer {
 
     @Column(name = "DATE_OF_BIRTH")
     private String dob;
+
+    private String age;
 
     private Timestamp lastUpdated;
 }

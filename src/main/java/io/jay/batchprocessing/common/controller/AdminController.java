@@ -1,6 +1,6 @@
-package io.jay.batchprocessing.controller;
+package io.jay.batchprocessing.common.controller;
 
-import io.jay.batchprocessing.repository.CustomerRepository;
+import io.jay.batchprocessing.common.repository.CustomerRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;

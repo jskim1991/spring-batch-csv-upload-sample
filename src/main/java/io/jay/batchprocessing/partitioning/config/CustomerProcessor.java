@@ -1,6 +1,6 @@
-package io.jay.batchprocessing.config;
+package io.jay.batchprocessing.partitioning.config;
 
-import io.jay.batchprocessing.entity.Customer;
+import io.jay.batchprocessing.common.entity.Customer;
 import org.springframework.batch.item.ItemProcessor;
 
 import java.sql.Timestamp;

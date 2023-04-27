@@ -1,4 +1,4 @@
-package io.jay.batchprocessing.partition;
+package io.jay.batchprocessing.partitioning.partition;
 
 import org.springframework.batch.core.partition.support.Partitioner;
 import org.springframework.batch.item.ExecutionContext;

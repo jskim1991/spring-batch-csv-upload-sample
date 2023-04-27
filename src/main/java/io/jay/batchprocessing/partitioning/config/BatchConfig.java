@@ -1,8 +1,8 @@
-package io.jay.batchprocessing.config;
+package io.jay.batchprocessing.partitioning.config;
 
-import io.jay.batchprocessing.entity.Customer;
-import io.jay.batchprocessing.partition.ColumnRangePartitioner;
-import io.jay.batchprocessing.repository.CustomerRepository;
+import io.jay.batchprocessing.common.entity.Customer;
+import io.jay.batchprocessing.partitioning.partition.ColumnRangePartitioner;
+import io.jay.batchprocessing.common.repository.CustomerRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.Step;
@@ -90,9 +90,9 @@ public class BatchConfig {
                 .build();
     }
 
-    @Bean
+    @Bean("partitioningJob")
     public Job job(@Qualifier("entryStep") Step entryStep, JobRepository jobRepository) {
-        return new JobBuilder("job", jobRepository)
+        return new JobBuilder("partitioningJob", jobRepository)
                 .flow(entryStep)
                 .end()
                 .build();

@@ -2,7 +2,6 @@ package io.jay.batchprocessing.fileuploader.config;
 
 import io.jay.batchprocessing.common.entity.Customer;
 import io.jay.batchprocessing.common.repository.CustomerRepository;
-import io.jay.batchprocessing.faulttolerant.config.FaultTolerantCustomerProcessor;
 import lombok.RequiredArgsConstructor;
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.Step;
@@ -22,10 +21,13 @@ import org.springframework.core.io.FileSystemResource;
 import org.springframework.transaction.PlatformTransactionManager;
 
 import java.io.File;
+import java.sql.Timestamp;
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 
 @Configuration
 @RequiredArgsConstructor
-public class UploaderBatchConfig {
+public class DynamicFileUploaderBatchConfig {
 
     private final PlatformTransactionManager transactionManager;
     private final JobRepository jobRepository;
@@ -61,7 +63,10 @@ public class UploaderBatchConfig {
         return new StepBuilder("fileUploaderStep", jobRepository)
                 .<Customer, Customer>chunk(10, transactionManager)
                 .reader(reader)
-                .processor(new FaultTolerantCustomerProcessor())
+                .processor(item -> {
+                    item.setLastUpdated(Timestamp.valueOf(LocalDateTime.now(ZoneOffset.UTC)));
+                    return item;
+                })
                 .writer(chunk -> {
                     customerRepository.saveAll(chunk.getItems());
                 })

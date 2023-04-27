@@ -32,12 +32,6 @@ public class BatchConfig {
     private final int GRID_SIZE = 5;
     private final int TOTAL_RECORD_COUNT = 1000;
 
-    private final JobRepository jobRepository;
-    private final CustomerRepository customerRepository;
-
-    private final PlatformTransactionManager transactionManager;
-
-
     @Bean
     @StepScope
     public FlatFileItemReader<Customer> reader(@Value("#{stepExecutionContext['minValue']}") int startLine, @Value("#{stepExecutionContext['maxValue']}") int lastLine) {
@@ -65,14 +59,6 @@ public class BatchConfig {
         return itemReader;
     }
 
-    public CustomerProcessor processor() {
-        return new CustomerProcessor();
-    }
-
-    public ColumnRangePartitioner partitioner() {
-        return new ColumnRangePartitioner();
-    }
-
     @Bean
     public PartitionHandler partitionHandler(@Qualifier("csvToDatabaseStep") Step step) {
         var taskExecutorPartitionHandler = new TaskExecutorPartitionHandler();
@@ -83,19 +69,20 @@ public class BatchConfig {
     }
 
     @Bean
-    public Step entryStep(PartitionHandler partitionHandler) {
+    public Step entryStep(PartitionHandler partitionHandler, JobRepository jobRepository) {
         return new StepBuilder("entryStep", jobRepository)
-                .partitioner("csvToDatabaseStep", partitioner())
+                .partitioner("csvToDatabaseStep", new ColumnRangePartitioner())
                 .partitionHandler(partitionHandler)
                 .build();
     }
 
     @Bean
-    public Step csvToDatabaseStep(FlatFileItemReader<Customer> reader) {
+    public Step csvToDatabaseStep(FlatFileItemReader<Customer> reader, JobRepository jobRepository,
+                                  PlatformTransactionManager transactionManager, CustomerRepository customerRepository) {
         return new StepBuilder("csvToDatabaseStep", jobRepository)
                 .<Customer, Customer>chunk(TOTAL_RECORD_COUNT / GRID_SIZE, transactionManager)
                 .reader(reader)
-                .processor(processor())
+                .processor(new CustomerProcessor())
                 .writer(chunk -> {
                     System.out.println("Thread name: " + Thread.currentThread().getName());
                     customerRepository.saveAll(chunk.getItems());
@@ -104,7 +91,7 @@ public class BatchConfig {
     }
 
     @Bean
-    public Job job(@Qualifier("entryStep") Step entryStep) {
+    public Job job(@Qualifier("entryStep") Step entryStep, JobRepository jobRepository) {
         return new JobBuilder("job", jobRepository)
                 .flow(entryStep)
                 .end()

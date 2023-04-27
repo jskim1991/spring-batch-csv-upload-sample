@@ -1,7 +1,3 @@
-For simple CSV to DB sample, refer `main` branch.
-
-For spring batch partitioning, refer `partitioning` branch.
-
 
 Database queries:
 ```
